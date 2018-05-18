@@ -1,18 +1,29 @@
-const globalContainer = document.querySelector('.container');
-const photoContainer = document.querySelector('.photo-container');
-const counterContainer = document.querySelector('.counter-container');
+window.onload = function () {
 
-function fetchCatPhoto () {
-  const catApiUrl = 'http://thecatapi.com/api/images/get?format=src';
-  fetch(catApiUrl)
-  .then(response => response.text())
-  .then(addImage);
-}
+  const globalContainer = document.querySelector('.container');
+  const counterContainer = document.querySelector('.counter-container');
+  const photoContainer = document.querySelector('.photo-container');
 
-function addImage (link) {
-  let imgElement = `<img src=${link} alt="cute kitty"`;
-  photoContainer.innerHTML = '';
-  photoContainer.innerHTML += imgElement;
-}
+  function fetchCatPhoto () {
+    const catApiUrl = 'https://cataas.com/cat';
+    fetch(catApiUrl)
+      .then(response => response.blob())
+      .then(function (image) {
+        let link = URL.createObjectURL(image);
+        let imgElement = `<img src="${link}" alt="cute kitty">`;
+        const photoContainer = document.querySelector('.photo-container');
+        photoContainer.innerHTML = '';
+        photoContainer.innerHTML += imgElement;
+      });
+  }
 
-fetchCatPhoto();
+  fetchCatPhoto();
+
+  photoContainer.addEventListener('click', function(event) {
+    event.preventDefault();
+    let counter = document.querySelector('.counter');
+    let counterValue = counter.textContent;
+    counterValue ++;
+    counter.textContent = counterValue;
+  });
+};
