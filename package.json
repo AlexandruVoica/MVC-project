@@ -2,7 +2,7 @@
   "name": "dev-mvc-project",
   "version": "1.0.0",
   "description": "This will be a small exercise in using the MVC design pattern in JS.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
