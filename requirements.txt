@@ -1,0 +1,12 @@
+1.
+  Cat Clicker:
+    - add a photo of 1 cat and a counter that counts how many times it has been clicked
+
+2.
+  Cat Clicker:
+    - add a photo of 2 cats, a counter for each that counts how many times it has been clicked and their respectve name
+
+3.
+  Cat Clicker:
+    - show a list of cats and their respective name
+    - a user can select up to 5 cats to display and click on at once
