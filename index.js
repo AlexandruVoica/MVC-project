@@ -1,48 +1,57 @@
-import generateName from 'helpers.js';
+import { generateName } from './helpers.js';
 
 window.onload = function () {
-  const templateElement = `<div class="container">
-                            <div class="photo-container"></div>
-                            <div class="counter-container"></div>
-                          </div>`;
+  const globalContainer = document.querySelector('.global-container');
+  globalContainer.innerHTML = '';
 
-  const photoContainer = document.querySelector('.photo-container');
+  const numberOfCats = 2;
 
-  // TODO: refactor the whole cat photo method
+  for (let index = 0; index < numberOfCats; index ++) {
+    // globalContainer.innerHTML += templateElement
+    let container = document.createElement('div');
+    container.classList.add('container');
+    container.innerHTML = '';
+    populate(container);
+    globalContainer.appendChild(container);
+  }
 
-  function fetchCatPhoto () {
+  async function populate (container) {
+    await addPhoto(container);
+    addCounter(container);
+    listen(container);
+  }
+
+  function addPhoto (container) {
     const catApiUrl = 'https://cataas.com/cat';
-    fetch(catApiUrl)
-      .then(response => response.blob())
-      .then(addPhoto);
+    return fetch(catApiUrl)
+            .then(response => response.blob())
+            .then(blob => {
+              let link = URL.createObjectURL(blob);
+              let img = `<img src="${link}" alt="cute kitty">`;
+              let newElement = `<div class="photo-container">${img}</div>`;
+              container.innerHTML += newElement;
+            });
   }
 
-  function addPhoto (image) {
-    let link = URL.createObjectURL(image);
-    let imgElement = `<img src="${link}" alt="cute kitty">`;
-    const photoContainer = document.querySelector('.photo-container');
-    photoContainer.innerHTML = '';
-    photoContainer.innerHTML += imgElement;
+  function addCounter (container) {
+    let info = `<h6 class="name">${generateName()}</h6>
+                <h1 class="counter">0</h1>
+                <h6>times clicked</h6>`;
+    let newElement = `<div class="counter-container">${info}</div>`;
+    container.innerHTML += newElement;
   }
 
-  fetchCatPhoto();
-
-  function addCounter () {
-    const counterContainer = document.querySelector('.counter-container');
-    const templateCounter = `<h6>${generateName()}
-                             <h1 class="counter">0</h1>
-                             <h6>times clicked</h6>`;
-    counterContainer.innerHTML = '';
-    counterContainer.innerHTML += templateCounter;
+  function listen (container) {
+    const photoContainer = container.querySelector('.photo-container');
+    const counterContainer = container.querySelector('.counter-container');
+    photoContainer.addEventListener('click', function(event) {
+      event.preventDefault();
+      const counter = counterContainer.querySelector('.counter');
+      let counterValue = counter.textContent;
+      counterValue ++;
+      counter.textContent = counterValue;
+    });
   }
 
-  addCounter();
 
-  photoContainer.addEventListener('click', function(event) {
-    event.preventDefault();
-    const counter = document.querySelector('.counter');
-    let counterValue = counter.textContent;
-    counterValue ++;
-    counter.textContent = counterValue;
-  });
 };
