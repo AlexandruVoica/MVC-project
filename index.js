@@ -1,13 +1,41 @@
 import { generateName } from './helpers.js';
 
+class CatPhotoElement {
+  constructor (photo, name, counter) {
+    this.photo = photo;
+    this.name = name;
+    this.counter = counter;
+  }
+
+  increaseCounter () {
+    this.counter ++;
+  }
+
+  renderIn (container) {
+    container.innerHTML = '';
+    let imgElement = `<img src="${this.photo}" alt="cute kitty">`;
+    let newPhotoContainer = `<div class="photo-container">${imgElement}</div>`;
+    container.innerHTML += newPhotoContainer;
+    let info = `<h6 class="name">${this.name}</h6>
+                <h1 class="counter">0</h1>
+                <h6>times clicked</h6>`;
+    let newCounterContainer = `<div class="counter-container">${info}</div>`;
+    container.innerHTML += newCounterContainer;
+  }
+}
+
 window.onload = function () {
   const globalContainer = document.querySelector('.global-container');
   globalContainer.innerHTML = '';
 
-  const numberOfCats = 2;
+  let cats = [];
+  const numberOfCats = 9;
 
   for (let index = 0; index < numberOfCats; index ++) {
     // globalContainer.innerHTML += templateElement
+
+    cats.push(new CatPhotoElement(fetchCatPhoto(), generateName(), 0));
+
     let container = document.createElement('div');
     container.classList.add('container');
     container.innerHTML = '';
@@ -15,21 +43,22 @@ window.onload = function () {
     globalContainer.appendChild(container);
   }
 
-  async function populate (container) {
-    await addPhoto(container);
-    addCounter(container);
-    listen(container);
-  }
+  // async function populate (container) {
+  //   await addPhoto(container);
+  //   addCounter(container);
+  //   listen(container);
+  // }
 
-  function addPhoto (container) {
+  function fetchCatPhoto () {
     const catApiUrl = 'https://cataas.com/cat';
     return fetch(catApiUrl)
             .then(response => response.blob())
             .then(blob => {
               let link = URL.createObjectURL(blob);
-              let img = `<img src="${link}" alt="cute kitty">`;
-              let newElement = `<div class="photo-container">${img}</div>`;
-              container.innerHTML += newElement;
+              return link;
+              // let img = `<img src="${link}" alt="cute kitty">`;
+              // let newElement = `<div class="photo-container">${img}</div>`;
+              // container.innerHTML += newElement;
             });
   }
 
