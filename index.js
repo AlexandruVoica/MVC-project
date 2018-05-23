@@ -11,16 +11,18 @@ class CatPhotoElement {
     this.counter ++;
   }
 
-  renderIn (container) {
-    container.innerHTML = '';
-    let imgElement = `<img src="${this.photo}" alt="cute kitty">`;
-    let newPhotoContainer = `<div class="photo-container">${imgElement}</div>`;
-    container.innerHTML += newPhotoContainer;
-    let info = `<h6 class="name">${this.name}</h6>
-                <h1 class="counter">0</h1>
-                <h6>times clicked</h6>`;
-    let newCounterContainer = `<div class="counter-container">${info}</div>`;
-    container.innerHTML += newCounterContainer;
+  renderPhoto () {
+    return `<div class="photo-container">
+              <img src="${this.photo}" alt="cute kitty">
+            </div>`;
+  }
+
+  renderCounter () {
+    return `<div class="counter-container">
+              <h6 class="name">${this.name}</h6>
+              <h1 class="counter">${this.counter}</h1>
+              <h6>times clicked</h6>
+            </div>`;
   }
 }
 
