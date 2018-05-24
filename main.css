@@ -21,6 +21,7 @@ img:hover {
 img:active {
   transform: translate(7px, 7px);
   box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.8);
+  filter: none;
 }
 
 .global-container {
@@ -80,8 +81,38 @@ img:active {
   justify-content: center;
 }
 
+/* .list-container img {
+  display: inline-block;
+} */
+
 .list-container .photo-container, img {
   width: 100px;
   height: 100px;
   border-radius: 20px;
+  filter: grayscale(0.8);
+}
+
+.loading-container {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.loading {
+  margin: 0;
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top: 5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

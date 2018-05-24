@@ -34,44 +34,34 @@ window.URL = window.URL || window.webkitURL;
 
 let cats = [];
 
-async function createList () {
+function createList () {
   const numberOfCats = 9;
 
   for (let index = 0; index < numberOfCats; index ++) {
-    let photoUrl = '';
-    let fetchPromise = fetchCatPhoto();
-    await fetchPromise.then(link => {
-      photoUrl = link;
-    });
 
-    cats.push(new CatPhotoElement(photoUrl, generateName(), 0));
+    cats.push(new CatPhotoElement('#', generateName(), 0));
 
+    let spinnerTemplate = '<div class="loading-container"><div class="loading"></div></div>';
     let container = document.createElement('div');
     container.classList.add('container');
     container.innerHTML = '';
-    container.innerHTML += cats[index].renderPhoto();
+    container.innerHTML += spinnerTemplate;
     listContainer.appendChild(container);
+
+    fetchCatPhoto(cats[index], container);
   }
 }
 
 createList();
 
-// async function populate (container) {
-//   await addPhoto(container);
-//   addCounter(container);
-//   listen(container);
-// }
-
-function fetchCatPhoto () {
+function fetchCatPhoto (catObject, container) {
   const catApiUrl = 'https://cataas.com/cat';
-  return fetch(catApiUrl)
+  fetch(catApiUrl)
   .then(response => response.blob())
   .then(blob => {
-    return window.URL.createObjectURL(blob);
-    // return link;
-    // let img = `<img src="${link}" alt="cute kitty">`;
-    // let newElement = `<div class="photo-container">${img}</div>`;
-    // container.innerHTML += newElement;
+    catObject.photo = window.URL.createObjectURL(blob);
+    container.innerHTML = '';
+    container.innerHTML += catObject.renderPhoto();
   });
 }
 
