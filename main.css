@@ -4,6 +4,11 @@ body {
   font-family: 'Lato', sans-serif;
 }
 
+header {
+  text-align: center;
+  font-size: 1.4rem;
+}
+
 img {
   width: 300px;
   height: 300px;
@@ -21,7 +26,6 @@ img:hover {
 img:active {
   transform: translate(7px, 7px);
   box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.8);
-  filter: none;
 }
 
 .global-container {
@@ -81,11 +85,8 @@ img:active {
   justify-content: center;
 }
 
-/* .list-container img {
-  display: inline-block;
-} */
-
-.list-container .photo-container, img {
+.list-container .photo-container,
+.list-container img {
   width: 100px;
   height: 100px;
   border-radius: 20px;
@@ -115,4 +116,12 @@ img:active {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.list-container .selected {
+  border: 3px solid white;
+  box-sizing: border-box;
+  transform: translate(7px, 7px);
+  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.8);
+  filter: saturate(5) contrast(1.2);
 }
