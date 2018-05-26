@@ -1,130 +1,212 @@
-import { generateName } from './helpers.js';
-
-class CatPhotoElement {
-  constructor (photo, name, counter) {
-    this.photo = photo;
-    this.name = name;
-    this.counter = counter;
-    this.selfGlobalContainer = null;
+class Observable {
+  constructor () {
+    this.observers = [];
   }
 
-  updateCounter () {
-    this.counter ++;
-    let counterContainerTemporary = this.selfGlobalContainer.querySelector('.counter-container');
-    counterContainerTemporary.innerHTML = '';
-    counterContainerTemporary.innerHTML = this.renderCounter();
+  addObserver (observer) {
+    this.observers.push(observer);
   }
 
-  renderPhoto () {
-    return `<div class="photo-container">
-              <img src="${this.photo}" alt="cute kitty">
-            </div>`;
+  removeObserver (observerToRemove) {
+    this.observers = this.observers.filter(observer => observer != observerToRemove);
   }
 
-  renderCounter () {
-    return `<div class="counter-container">
-              <h6 class="name">${this.name}</h6>
-              <h1 class="counter">${this.counter}</h1>
-              <h6>times clicked</h6>
-            </div>`;
-  }
-}
-
-const globalContainer = document.querySelector('.global-container');
-const listContainer = document.querySelector('.list-container');
-const header = document.querySelector('header');
-globalContainer.innerHTML = '';
-window.URL = window.URL || window.webkitURL;
-
-let cats = [];
-const numberOfCats = 9;
-
-const maximumActiveCats = 4;
-let currentActiveCats = 0;
-
-(function createHeader () {
-  let paragraph = `<p>You can select up to ${maximumActiveCats} kitties from a total of ${numberOfCats}.</p>`;
-  header.innerHTML = '';
-  header.innerHTML += paragraph;
-})();
-
-function createList () {
-  for (let index = 0; index < numberOfCats; index ++) {
-
-    cats.push(new CatPhotoElement('#', generateName(), 0));
-
-    let spinnerTemplate = '<div class="loading-container"><div class="loading"></div></div>';
-    let container = document.createElement('div');
-    container.classList.add('container');
-    container.innerHTML = '';
-    container.innerHTML += spinnerTemplate;
-    listContainer.appendChild(container);
-
-    fetchCatPhoto(cats[index], container);
-
-    listenAndRender(cats[index], container);
-  }
-}
-
-createList();
-
-function fetchCatPhoto (catObject, container) {
-  const catApiUrl = 'https://cataas.com/cat';
-  fetch(catApiUrl)
-  .then(response => response.blob())
-  .then(blob => {
-    catObject.photo = window.URL.createObjectURL(blob);
-    container.innerHTML = '';
-    container.innerHTML += catObject.renderPhoto();
-  });
-}
-
-function listenAndRender (catObject, container) {
-  container.addEventListener('click', (event) => {
-    if (event.target && event.target.matches('img')) {
-      let clickedPhoto = event.target;
-      if (!clickedPhoto.classList.contains('selected') && currentActiveCats < maximumActiveCats) {
-        currentActiveCats ++;
-        clickedPhoto.classList.add('selected');
-        renderGlobal(catObject);
-      } else if (clickedPhoto.classList.contains('selected')) {
-        currentActiveCats --;
-        clickedPhoto.classList.remove('selected');
-        unrenderGlobal(catObject);
-      }
+  emit (data) {
+    for (let observer of this.observers) {
+      observer.notify(data);
     }
-  });
+  }
 }
 
-function renderGlobal (catObject) {
-  let container = document.createElement('div');
-  container.classList.add('container');
-  container.innerHTML = '';
-  container.innerHTML += catObject.renderPhoto();
-  container.innerHTML += catObject.renderCounter();
-  catObject.selfGlobalContainer = container;
-  globalContainer.appendChild(container);
-  listenAndCount(catObject);
+// this Observer class is (mentally) equivalent to an interface
+class Observer {
+  constructor () {}
+
+  notify (data) {
+    return true;
+  }
 }
 
-function unrenderGlobal (catObject) {
-  catObject.selfGlobalContainer.remove();
+class Model extends Observable {
+  constructor () {
+    super();
+  }
 }
 
-function listenAndCount (catObject) {
-  catObject.selfGlobalContainer.addEventListener('click', (event) => {
-    catObject.updateCounter();
-  })
+class Collection extends Model {
+  constructor () {
+    super();
+  }
 }
 
-// function listen (container) {
-//   const photoContainer = container.querySelector('.photo-container');
-//   const counterContainer = container.querySelector('.counter-container');
-//   photoContainer.addEventListener('click', function(event) {
-//     event.preventDefault();
-//     const counter = counterContainer.querySelector('.counter');
-//     let counterValue = counter.textContent;
-//     counterValue ++;
-//     counter.textContent = counterValue;
-//   });
+class Controller {
+  constructor (model, view) {
+    this.model = model;
+    this.view = view;
+  }
+
+  initialize () {
+    this.view.initialize();
+    // attach event listeners
+    // ...
+  }
+}
+
+class View extends Observer {
+  constructor (controller) {
+    super();
+    this.controller = controller;
+  }
+
+  initialize () {
+
+  }
+
+  render () {
+
+  }
+}
+
+class Component {
+  constructor (model, view, controller) {
+    this.model = model;
+    this.view = view;
+    this.controller = controller;
+  }
+}
+
+let catListComponent = new Component();
+let catStageComponent = new Component();
+
+catListComponent.controller.initialize();
+catListComponent.controller.initialize();
+
+// class Cat {
+//   constructor (photo, name, counter) {
+//     this.photo = photo;
+//     this.name = name;
+//     this.counter = counter;
+//     this.selfGlobalContainer = null;
+//   }
+
+// class CatList extends ModelObservable {
+//   constructor (photo, name, counter) {
+//     super();
+//     this.photo = photo;
+//     this.name = name;
+//     this.counter = counter;
+//     this.selfGlobalContainer = null;
+//   }
+
+//   incrementCounter () {
+//     this.counter ++;
+//   }
+// }
+
+// class CatEventObservable {
+//   constructor () {
+//     this.observers = [];
+//   }
+
+//   addObserver (CatEventObserver) {
+//     this.observers.push(CatEventObserver);
+//   }
+
+//   emitEvent (event) {
+//     this.observers.forEach((observer) => observer.catStateChanged(event));
+//   }
+// }
+
+// class CatModelObserver {
+//   constructor () {
+
+//   }
+
+//   catModelChanged () {
+
+//   }
+// }
+
+// class CatView extends CatModelObserver {
+//   constructor (container, model) {
+//     super();
+//     this.container = container;
+//     this.model = model;
+//   }
+
+//   catModelChanged () {
+//     this.render();
+//   }
+
+//   getPhoto () {
+//     // return an img src
+//   }
+
+//   getContainer () {
+//     // return a div
+//   }
+
+//   getCounter () {
+
+//   }
+
+//   _renderPhoto () {
+//     this.container.innerHTML = `<div class="photo-container">
+//                                   <img src="${this.model.photoUrl}" alt="cute kitty">
+//                                 </div>`;
+//   }
+
+//   _renderCounter () {
+
+//   }
+
+//   render () {
+//     this._renderPhoto();
+//     this._renderCounter();
+//   }
+// }
+
+// class CatEventObserver {
+//   constructor () {
+
+//   }
+
+//   catStateChanged (event) {
+
+//   }
+// }
+
+// class CatEventObservable {
+//   constructor () {
+//     this.observers = [];
+//   }
+
+//   addObserver (CatEventObserver) {
+//     this.observers.push(CatEventObserver);
+//   }
+
+//   emitEvent (event) {
+//     this.observers.forEach((observer) => observer.catStateChanged(event));
+//   }
+// }
+
+// class CatController extends CatEventObservable {
+//   constructor (model, view) {
+//     super();
+//     this.model = model;
+//     this.view = view;
+//   }
+
+//   _click () {
+//     let currentView = this.view;
+//     currentView.getPhoto().addEventListener('click', function() {
+//       currentView.toggleSelected();
+//     });
+//   }
+// }
+
+// class CatStage extends CatEventObserver {
+//   constructor () {
+
+//   }
 // }
