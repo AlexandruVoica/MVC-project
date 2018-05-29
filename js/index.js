@@ -1,17 +1,19 @@
-import { Model, Controller, View, Component } from './generic-classes';
+import { Model, Controller, View, Component } from './generic-classes.js';
 import { generateName } from './helpers.js';
 
-const root = document.querySelector('.root');
+const root = document.querySelector('#root');
 
 class CatModel extends Model {
   constructor () {
     super();
-    this.photo = '';
+    this.photo = ``;
     // need to research more on Promises
     // specifically how to return values outside of Promise scopes
     this.fetchPhoto();
     this.name = generateName();
     this.counter = 0;
+    this.isSelectable = true;
+    this.selected = false;
   }
 
   fetchPhoto () {
@@ -20,58 +22,96 @@ class CatModel extends Model {
       .then(response => response.blob())
       .then(blob => {
         this.photo = window.URL.createObjectURL(blob);
+        // notifiy all observers
+        this.emit('Photo has been fetched.');
       });
+  }
+
+  toggleSelected () {
+    if (this.selected) {
+      this.selected = false;
+      this.emit('Cat was deselected');
+      broker.publish('catSelectionEvents', this);
+    } else {
+      if (this.isSelectable) {
+        this.selected = true;
+        this.emit('Cat was selected');
+        broker.publish('catSelectionEvents', this);
+      }
+    }
+  }
+
+  setIsSelectable (value) {
+    this.isSelectable = value;
   }
 }
 
-class CatController extends Controller {
+class CatControllerInList extends Controller {
+  constructor (model, view) {
+    super(model, view);
+    this.initialize();
+  }
+
+  initialize () {
+    const self = this;
+    this.view.photoContainer.addEventListener('click', function (event) {
+      self.model.toggleSelected();
+    });
+  }
+}
+
+class CatControllerInStage extends Controller {
   constructor (model, view) {
     super(model, view);
   }
 
-  initialize (parent) {
-    this.view.initialize(parent);
-  }
 }
 
 class CatView extends View {
-  constructor (model) {
-    super(model);
+  constructor (model, container) {
+    super(model, container);
     // TODO: solve this with proxies
-    this.model.addObserver (this);
+    this.initialize();
+    this.model.addObserver(this);
   }
 
   initialize () {
     this.container = document.createElement('div');
     this.container.classList.add('container');
-    this.container.innerHTML = '';
     this.container.innerHTML = `<div class="photo-container">
-              <div class="loading-container">
-                <div class="loading"></div>
-              </div>
-            </div>`;
+                                </div>
+                                <div class="counter-container">
+                                </div>`;
+    this.photoContainer = this.container.querySelector('.photo-container');
+    this.counterContainer = this.container.querySelector('.counter-container');
+    this.parent.appendChild(this.container);
+    this.renderPhoto();
   }
 
-  notified () {
-
+  notified (data) {
+    console.log(data);
+    this.renderPhoto();
   }
 
   renderPhoto () {
-    return `<div class="photo-container">
-              <img src="${this.photo}" alt="cute kitty">
-            </div>`;
+    if (this.model.photo === '') {
+      this.photoContainer.innerHTML = ` <div class="loading-container">
+                                        <div class="loading"></div>
+                                      </div>`;
+    } else {
+      this.photoContainer.innerHTML = `<img class="${this.model.selected ? 'selected' : ''}" src="${this.model.photo}" alt="cute kitty">`;
+    }
   }
 
   renderCounter () {
-    return `<div class="counter-container">
-              <h6 class="name">${this.name}</h6>
-              <h1 class="counter">${this.counter}</h1>
-              <h6>times clicked</h6>
-            </div>`;
+    this.counterContainer.innerHTML = `<h6 class="name">${this.model.name}</h6>
+                                       <h1 class="counter">${this.model.counter}</h1>
+                                       <h6>times clicked</h6>`;
   }
 
   render () {
-    return this.renderPhoto() + this.renderCounter();
+    this.renderPhoto();
+    this.renderCounter();
   }
 }
 
@@ -80,182 +120,154 @@ class CatListModel extends Model {
     // I used the argObject instead of the built-in arguments object because I require the names of the arguments themselves
     super();
     this.cats = [];
-    for (let arg in argObject) {
-      if (arg === 'numberOfCats') {
-        this.numberOfCats = argObject[arg];
-        break;
-      } else {
-        this.numberOfCats = 1;
-      }
-    }
+    this.numberOfCats = argObject.numberOfCats || 1;
   }
 }
 
 class CatListController extends Controller {
   constructor (model, view) {
     super(model, view);
+    this.initialize();
   }
 
   initialize () {
     this.buildList();
-    this.view.render();
   }
 
   buildList () {
     const self = this;
     for (let index = 0; index < this.model.numberOfCats; index ++) {
-      self.model.cats.push(new Component(CatModel, CatView, CatController, {}));
+      self.model.cats.push(new Component(CatModel, CatView, CatControllerInList, self.view.container, {}));
     }
   }
 }
 
 class CatListView extends View {
-  constructor (model) {
-    super(model);
+  constructor (model, container) {
+    super(model, container);
+    this.initialize();
   }
 
   initialize() {
-    let listContainer = document.createElement('div');
-    listContainer.classList.add('list-container');
-    listContainer.innerHTML = '';
-    root.appendChild(listContainer);
+    this.container = document.createElement('div');
+    this.container.classList.add('list-container');
+    this.container.innerHTML = '';
+    this.parent.appendChild(this.container);
   }
 }
 
-let catList = new Component(CatListModel, CatListView, CatListController, {
+class CatStageModel extends Model {
+  constructor (argObject) {
+    super();
+    this.catsOnStage = [];
+    this.maximumNumberOfCats = argObject.maximumNumberOfCats || 1;
+  }
+
+  addCat (cat) {
+    this.catsOnStage.push(cat);
+  }
+
+  removeCat (catModelToRemove) {
+    let catFound = this.searchCatByModel(catModelToRemove);
+    if (catFound) {
+      this.emit(catFound);
+    }
+    this.catsOnStage = this.catsOnStage.filter (cat => cat.model != catModelToRemove);
+  }
+
+  searchCatByModel (catModelToFind) {
+    // return a cat component with the searched model
+    return this.catsOnStage.filter(catComponent => catComponent.model === catModelToFind)[0];
+  }
+}
+
+class CatStageController extends Controller {
+  constructor (model, view) {
+    super(model, view);
+    this.initialize();
+  }
+
+  initialize () {
+    const self = this;
+    broker.addSubscriber('catSelectionEvents', function (cat) {
+      if (cat.selected) {
+        self.addCatToStage(cat);
+      } else {
+        self.removeCatFromStage(cat);
+      }
+    });
+  }
+
+  addCatToStage (catModel) {
+    let newCat = new Component(catModel, CatView, CatControllerInStage, this.view.container, {});
+    this.model.addCat(newCat);
+  }
+
+  removeCatFromStage (catModelToRemove) {
+    this.model.removeCat(catModelToRemove);
+  }
+}
+
+class CatStageView extends View {
+  constructor (model, container) {
+    super(model, container);
+    this.model.addObserver(this);
+    this.initialize();
+  }
+
+  initialize () {
+    this.container = document.createElement('div');
+    this.container.classList.add('global-container');
+    this.parent.appendChild(this.container);
+  }
+
+  notified (data) {
+    this.container.removeChild(data.view.container);
+  }
+
+  render () {
+    this.container.innerHTML = '';
+    for (let cat in this.catsOnStage) {
+      cat.view.render();
+    }
+  }
+}
+
+class MessageBroker {
+  constructor () {
+    this.destinations = {
+      'catSelectionEvents': []
+    };
+  }
+
+  addSubscriber (destination, callback) {
+    if (!this.destinations.hasOwnProperty(destination)) {
+      this.destinations[destination] = [];
+    }
+    this.destinations[destination].push(callback);
+  }
+
+  removeSubscriber (destination, callbackToRemove) {
+    if (this.destinations.hasOwnProperty(destination)) {
+      this.destinations[destination] = this.destinations[destination].filter(callback => callback != callbackToRemove);
+    }
+  }
+
+  publish (destination, data) {
+    if (this.destinations.hasOwnProperty(destination)) {
+      for (let subscriber of this.destinations[destination]) {
+        subscriber(data);
+      }
+    }
+  }
+}
+
+let broker = new MessageBroker ();
+let catList = new Component(CatListModel, CatListView, CatListController, root, {
+  // total number of cats in the list model
   numberOfCats: 9
 });
-
-
-
-
-
-// class Cat {
-//   constructor (photo, name, counter) {
-//     this.photo = photo;
-//     this.name = name;
-//     this.counter = counter;
-//     this.selfGlobalContainer = null;
-//   }
-
-// class CatList extends ModelObservable {
-//   constructor (photo, name, counter) {
-//     super();
-//     this.photo = photo;
-//     this.name = name;
-//     this.counter = counter;
-//     this.selfGlobalContainer = null;
-//   }
-
-//   incrementCounter () {
-//     this.counter ++;
-//   }
-// }
-
-// class CatEventObservable {
-//   constructor () {
-//     this.observers = [];
-//   }
-
-//   addObserver (CatEventObserver) {
-//     this.observers.push(CatEventObserver);
-//   }
-
-//   emitEvent (event) {
-//     this.observers.forEach((observer) => observer.catStateChanged(event));
-//   }
-// }
-
-// class CatModelObserver {
-//   constructor () {
-
-//   }
-
-//   catModelChanged () {
-
-//   }
-// }
-
-// class CatView extends CatModelObserver {
-//   constructor (container, model) {
-//     super();
-//     this.container = container;
-//     this.model = model;
-//   }
-
-//   catModelChanged () {
-//     this.render();
-//   }
-
-//   getPhoto () {
-//     // return an img src
-//   }
-
-//   getContainer () {
-//     // return a div
-//   }
-
-//   getCounter () {
-
-//   }
-
-//   _renderPhoto () {
-//     this.container.innerHTML = `<div class="photo-container">
-//                                   <img src="${this.model.photoUrl}" alt="cute kitty">
-//                                 </div>`;
-//   }
-
-//   _renderCounter () {
-
-//   }
-
-//   render () {
-//     this._renderPhoto();
-//     this._renderCounter();
-//   }
-// }
-
-// class CatEventObserver {
-//   constructor () {
-
-//   }
-
-//   catStateChanged (event) {
-
-//   }
-// }
-
-// class CatEventObservable {
-//   constructor () {
-//     this.observers = [];
-//   }
-
-//   addObserver (CatEventObserver) {
-//     this.observers.push(CatEventObserver);
-//   }
-
-//   emitEvent (event) {
-//     this.observers.forEach((observer) => observer.catStateChanged(event));
-//   }
-// }
-
-// class CatController extends CatEventObservable {
-//   constructor (model, view) {
-//     super();
-//     this.model = model;
-//     this.view = view;
-//   }
-
-//   _click () {
-//     let currentView = this.view;
-//     currentView.getPhoto().addEventListener('click', function() {
-//       currentView.toggleSelected();
-//     });
-//   }
-// }
-
-// class CatStage extends CatEventObserver {
-//   constructor () {
-
-//   }
-// }
+let catStage = new Component(CatStageModel, CatStageView, CatStageController, root, {
+  // maximum number of cats that can be on the stage at the same time
+  maximumNumberOfCats: 4
+});

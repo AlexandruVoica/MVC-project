@@ -93,6 +93,10 @@ img:active {
   filter: grayscale(0.8);
 }
 
+.list-container .counter-container {
+  display: none;
+}
+
 .loading-container {
   width: 100px;
   height: 100px;
