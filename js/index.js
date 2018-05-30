@@ -16,6 +16,7 @@ class CatModel extends Model {
     this.counter = 0;
     this.isSelectable = true;
     this.selected = false;
+    this.level = 'Newborn';
   }
 
   fetchPhoto () {
@@ -31,7 +32,28 @@ class CatModel extends Model {
 
   incrementCounter () {
     this.counter ++;
+    this.computeLevel();
     this.emit('counter');
+  }
+
+  computeLevel () {
+    if (this.counter <= 10) {
+      this.level = 'Newborn';
+    } else if (this.counter <= 20) {
+      this.level = 'Infant';
+    } else if (this.counter <= 30) {
+      this.level = 'Child';
+    } else if (this.counter <= 50) {
+      this.level = 'Squire';
+    } else if (this.counter <= 100) {
+      this.level = 'Warrior';
+    } else if (this.counter <= 200) {
+      this.level = 'Wizard';
+    } else if (this.counter <= 300) {
+      this.level = 'Sage';
+    } else if (this.counter <= 500) {
+      this.level = 'Ninja';
+    }
   }
 
   toggleSelected () {
@@ -133,6 +155,7 @@ class CatView extends View {
 
   renderCounter () {
     this.counterContainer.innerHTML = `<h6 class="name">${this.model.name}</h6>
+                                       <h6 class="level">${this.model.level}</h6>
                                        <h1 class="counter">${this.model.counter}</h1>
                                        <h6>times clicked</h6>`;
   }
@@ -239,9 +262,6 @@ class CatStageController extends Controller {
         // notify Cat component models that no more components can be selected (equal with "notify all Cat components to switch isSelectable to false")
         broker.publish('selectableEvents', false);
       }
-    } else {
-
-
     }
   }
 
