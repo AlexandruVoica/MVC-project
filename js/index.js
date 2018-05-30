@@ -3,11 +3,13 @@ import { generateName } from './helpers.js';
 
 const root = document.querySelector('#root');
 
+// -------------------- Cat Component ------------------------
+
 class CatModel extends Model {
   constructor () {
     super();
-    this.photo = ``;
-    // need to research more on Promises
+    this.photo = '';
+    // TODO: research more on Promises
     // specifically how to return values outside of Promise scopes
     this.fetchPhoto();
     this.name = generateName();
@@ -27,15 +29,27 @@ class CatModel extends Model {
       });
   }
 
+  incrementCounter () {
+    this.counter ++;
+    this.emit('counter');
+  }
+
   toggleSelected () {
+    // if cat is already selected
     if (this.selected) {
       this.selected = false;
-      this.emit('Cat was deselected');
+      // notify observers (view)
+      this.emit('deselected');
+      // notify other components
       broker.publish('catSelectionEvents', this);
     } else {
+      // if cat is not selected
+      // check if it is selectable
       if (this.isSelectable) {
         this.selected = true;
-        this.emit('Cat was selected');
+        // notify observers (view)
+        this.emit('selected');
+        // notify other components
         broker.publish('catSelectionEvents', this);
       }
     }
@@ -54,6 +68,9 @@ class CatControllerInList extends Controller {
 
   initialize () {
     const self = this;
+    broker.addSubscriber('selectableEvents', function(value) {
+      self.model.setIsSelectable(value);
+    });
     this.view.photoContainer.addEventListener('click', function (event) {
       self.model.toggleSelected();
     });
@@ -63,8 +80,15 @@ class CatControllerInList extends Controller {
 class CatControllerInStage extends Controller {
   constructor (model, view) {
     super(model, view);
+    this.initialize();
   }
 
+  initialize () {
+    const self = this;
+    this.view.photoContainer.addEventListener('click', function (event) {
+      self.model.incrementCounter();
+    });
+  }
 }
 
 class CatView extends View {
@@ -85,12 +109,16 @@ class CatView extends View {
     this.photoContainer = this.container.querySelector('.photo-container');
     this.counterContainer = this.container.querySelector('.counter-container');
     this.parent.appendChild(this.container);
-    this.renderPhoto();
+    this.render();
   }
 
   notified (data) {
+    if (data === 'counter') {
+      this.renderCounter();
+    } else {
+      this.render();
+    }
     console.log(data);
-    this.renderPhoto();
   }
 
   renderPhoto () {
@@ -114,6 +142,8 @@ class CatView extends View {
     this.renderCounter();
   }
 }
+
+// ---------------------- Cat List ----------------------
 
 class CatListModel extends Model {
   constructor (argObject) {
@@ -156,6 +186,8 @@ class CatListView extends View {
   }
 }
 
+// --------------- Cat Stage ----------------------
+
 class CatStageModel extends Model {
   constructor (argObject) {
     super();
@@ -164,13 +196,14 @@ class CatStageModel extends Model {
   }
 
   addCat (cat) {
-    this.catsOnStage.push(cat);
+   this.catsOnStage.push(cat);
   }
 
   removeCat (catModelToRemove) {
-    let catFound = this.searchCatByModel(catModelToRemove);
-    if (catFound) {
-      this.emit(catFound);
+    let catComponentFound = this.searchCatByModel(catModelToRemove);
+    if (catComponentFound) {
+      // if Cat component is found, notify the view to remove that component from DOM
+      this.emit(catComponentFound);
     }
     this.catsOnStage = this.catsOnStage.filter (cat => cat.model != catModelToRemove);
   }
@@ -199,12 +232,22 @@ class CatStageController extends Controller {
   }
 
   addCatToStage (catModel) {
-    let newCat = new Component(catModel, CatView, CatControllerInStage, this.view.container, {});
-    this.model.addCat(newCat);
+    if (this.model.catsOnStage.length < this.model.maximumNumberOfCats) {
+      let newCat = new Component(catModel, CatView, CatControllerInStage, this.view.container, {});
+      this.model.addCat(newCat);
+      if (this.model.catsOnStage.length === this.model.maximumNumberOfCats) {
+        // notify Cat component models that no more components can be selected (equal with "notify all Cat components to switch isSelectable to false")
+        broker.publish('selectableEvents', false);
+      }
+    } else {
+
+
+    }
   }
 
   removeCatFromStage (catModelToRemove) {
     this.model.removeCat(catModelToRemove);
+    broker.publish('selectableEvents', true);
   }
 }
 
@@ -236,11 +279,13 @@ class CatStageView extends View {
 class MessageBroker {
   constructor () {
     this.destinations = {
-      'catSelectionEvents': []
+      'catSelectionEvents': [],
+      'selectableEvents': []
     };
   }
 
   addSubscriber (destination, callback) {
+    console.log(destination, callback);
     if (!this.destinations.hasOwnProperty(destination)) {
       this.destinations[destination] = [];
     }
@@ -254,6 +299,7 @@ class MessageBroker {
   }
 
   publish (destination, data) {
+    console.log(destination, data);
     if (this.destinations.hasOwnProperty(destination)) {
       for (let subscriber of this.destinations[destination]) {
         subscriber(data);
