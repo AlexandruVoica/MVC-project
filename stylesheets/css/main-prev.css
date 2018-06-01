@@ -28,13 +28,11 @@ img {
 }
 
 img:hover {
-  transform: translate(5px, 5px);
-  box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+
 }
 
 img:active {
-  transform: translate(7px, 7px);
-  box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.8);
+
 }
 
 .global-container {
