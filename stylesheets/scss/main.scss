@@ -1,10 +1,27 @@
+@import 'normalize';
 $bg-color: bisque;
-$card-big: 300px;
+$card-size-big: 300px;
+$card-size-small: 100px;
+$font-stack: 'Lato', sans-serif;
+
+@mixin card ($card-size) {
+  width: $card-size;
+  height: $card-size;
+}
+
+@mixin card-big () {
+  @include card($card-size-big);
+  border-radius: 30px;
+}
+
+@mixin card-small () {
+  @include card($card-size-small);
+  border-radius: 30px;
+}
 
 body {
   background-color: $bg-color;
-  margin: 0;
-  font-family: 'Lato', sans-serif;
+  font-family: $font-stack;
 }
 
 header {
@@ -12,20 +29,14 @@ header {
   text-align: center;
   font-size: 1rem;
 
-  p {
-    margin: 0;
-  }
-
   .welcome {
     font-size: 1.4rem;
   }
 }
 
 img {
-  width: $card-big;
-  height: $card-big;
+  @include card-big();
   object-fit: cover;
-  border-radius: 30px;
   box-shadow: 10px 10px 10px 0px rgba(0,0,0,0.3);
   transition: all 0.5s ease;
 
@@ -37,5 +48,95 @@ img {
   &:active {
     transform: translate(7px, 7px);
     box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.8);
+  }
+}
+
+.global-container {
+  display: flex;
+  /* height: 85vh; */
+  margin-top: 150px;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.photo-container {
+  @include card-big();
+}
+
+.counter-container {
+  @include card($card-size-big);
+  color: rgb(56, 56, 56);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  font-size: 2.7rem;
+
+  * {
+    text-align: center;
+    margin: 0;
+  }
+
+  .name {
+    font-weight: 900;
+  }
+
+  .level {
+    font-weight: 400;
+    font-size: 1.7rem;
+    color: gray;
+  }
+}
+
+.list-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+
+  .photo-container,
+  img {
+    @include card-small();
+    filter: grayscale(0.8);
+  }
+
+  .counter-container {
+    display: none;
+  }
+
+  .selected {
+    border: 3px solid white;
+    box-sizing: border-box;
+    transform: translate(7px, 7px);
+    box-shadow: 3px 3px 3px 0px rgba(0,0,0,0.8);
+    filter: saturate(5) contrast(1.2);
+  }
+}
+
+.loading-container {
+  @include card-small();
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+
+  .loading {
+    margin: 0;
+    border: 5px solid #f3f3f3; /* Light grey */
+    border-top: 5px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 }
