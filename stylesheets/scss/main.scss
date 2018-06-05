@@ -122,7 +122,11 @@ img {
       }
 
       .admin-panel {
-        display: none;
+        margin-top: 15px;
+
+        label {
+          display: block;
+        }
       }
     }
   }

@@ -110,6 +110,10 @@ class CatControllerInStage extends Controller {
     this.view.photoContainer.addEventListener('click', function (event) {
       self.model.incrementCounter();
     });
+    this.view.adminContainer.querySelector('.admin-button').addEventListener('click', function(event) {
+      // TODO: refactor admin panel into a separate component
+      console.log(self.view.adminContainer.querySelector('.admin-panel'));
+    });
   }
 }
 
@@ -164,7 +168,12 @@ class CatView extends View {
   }
 
   renderAdmin () {
-    this.adminContainer.innerHTML = '<button class="admin-button">Show admin panel</button>';
+    this.adminContainer.innerHTML = `<button class="admin-button">Show admin panel</button>
+                                    <div class="admin-panel">
+                                      <label for="image">Image: <input type="submit" value="Generate a different image"></label>
+                                      <label for="name">Name: <input type="text" id="name" value="${this.model.name}"> <input type="submit" value="Change"></label>
+                                      <label for="counter">Counter: ${this.model.counter}<input type="submit" value="Reset"></label>
+                                    </div>`;
   }
 
   render () {
