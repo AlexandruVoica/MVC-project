@@ -3,6 +3,7 @@ $bg-color: bisque;
 $card-size-big: 300px;
 $card-size-small: 100px;
 $font-stack: 'Lato', sans-serif;
+$font-color: rgb(56, 56, 56);
 
 @mixin card ($card-size) {
   width: $card-size;
@@ -54,43 +55,76 @@ img {
 .global-container {
   display: flex;
   /* height: 85vh; */
-  margin-top: 150px;
+  margin-top: 100px;
   justify-content: center;
-}
 
-.container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: 0 10px;
-}
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 10px;
 
-.photo-container {
-  @include card-big();
-}
+    .photo-container {
+      @include card-big();
+    }
 
-.counter-container {
-  @include card($card-size-big);
-  color: rgb(56, 56, 56);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  font-size: 2.7rem;
+    .counter-container {
+      @include card($card-size-big);
+      color: $font-color;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      font-size: 2.7rem;
 
-  * {
-    text-align: center;
-    margin: 0;
-  }
+      * {
+        text-align: center;
+        margin: 0;
+      }
 
-  .name {
-    font-weight: 900;
-  }
+      .name {
+        font-weight: 900;
+      }
 
-  .level {
-    font-weight: 400;
-    font-size: 1.7rem;
-    color: gray;
+      .level {
+        font-weight: 400;
+        font-size: 1.7rem;
+        color: gray;
+      }
+    }
+
+    .admin-container {
+      width: $card-size-big;
+      margin-top: 20px;
+
+      .admin-button {
+        width: $card-size-big;
+        background: rgb(245, 206, 159);
+        color: $font-color;
+        padding: 5px;
+        font-size: 1.1rem;
+        border: none;
+        border-radius: 25px;
+        outline: none;
+        box-shadow: 0px 4px 2px 1px rgba(95, 95, 95, 0.4);
+        transition: all 0.5s ease;
+
+        &:hover {
+          box-shadow: 0px 4px 4px 1px rgba(95, 95, 95, 0.2),
+                      0px 6px 4px 4px rgba(56, 56, 56, 0.1);
+          transform: translate(0, -2px);
+        }
+
+        &:active {
+          box-shadow: 0px 2px 2px 1px rgba(56, 56, 56, 0.2);
+          transform: translate(0, 2px);
+        }
+      }
+
+      .admin-panel {
+        display: none;
+      }
+    }
   }
 }
 
@@ -99,13 +133,18 @@ img {
   display: flex;
   justify-content: center;
 
+  .container {
+    margin: 0 10px;
+  }
+
   .photo-container,
   img {
     @include card-small();
     filter: grayscale(0.8);
   }
 
-  .counter-container {
+  .counter-container,
+  .admin-container {
     display: none;
   }
 

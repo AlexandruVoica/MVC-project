@@ -127,9 +127,12 @@ class CatView extends View {
     this.container.innerHTML = `<div class="photo-container">
                                 </div>
                                 <div class="counter-container">
+                                </div>
+                                <div class="admin-container">
                                 </div>`;
     this.photoContainer = this.container.querySelector('.photo-container');
     this.counterContainer = this.container.querySelector('.counter-container');
+    this.adminContainer = this.container.querySelector('.admin-container')
     this.parent.appendChild(this.container);
     this.render();
   }
@@ -160,9 +163,14 @@ class CatView extends View {
                                        <h6>times clicked</h6>`;
   }
 
+  renderAdmin () {
+    this.adminContainer.innerHTML = '<button class="admin-button">Show admin panel</button>';
+  }
+
   render () {
     this.renderPhoto();
     this.renderCounter();
+    this.renderAdmin();
   }
 }
 
@@ -295,6 +303,8 @@ class CatStageView extends View {
     }
   }
 }
+
+// ------------------ Message Broker ------------------
 
 class MessageBroker {
   constructor () {
