@@ -26,7 +26,7 @@ class CatModel extends Model {
       .then(blob => {
         this.photo = window.URL.createObjectURL(blob);
         // notifiy all observers
-        this.emit('Photo has been fetched.');
+        this.emit('photo');
       });
   }
 
@@ -80,6 +80,20 @@ class CatModel extends Model {
   setIsSelectable (value) {
     this.isSelectable = value;
   }
+
+  setName (name) {
+    this.name = name;
+    this.emit('name');
+  }
+
+  refetchPhoto () {
+    this.fetchPhoto();
+  }
+
+  setCounter (value) {
+    this.counter = value;
+    this.emit('counter');
+  }
 }
 
 class CatControllerInList extends Controller {
@@ -111,8 +125,28 @@ class CatControllerInStage extends Controller {
       self.model.incrementCounter();
     });
     this.view.adminContainer.querySelector('.admin-button').addEventListener('click', function(event) {
-      // TODO: refactor admin panel into a separate component
-      console.log(self.view.adminContainer.querySelector('.admin-panel'));
+      self.view.toggleAdminPanel();
+      self.listenAdminPanel();
+    });
+  }
+
+  listenAdminPanel () {
+    const self = this;
+    let adminPanel = this.view.adminContainer.querySelector('.admin-panel');
+    let imageButton = adminPanel.querySelector('#image-button');
+    let nameButton = adminPanel.querySelector('#name-button');
+    let counterButton = adminPanel.querySelector('#counter-button');
+    imageButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      self.model.refetchPhoto();
+    });
+    nameButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      self.model.setName(adminPanel.querySelector('#name').value);
+    });
+    counterButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      self.model.setCounter(0);
     });
   }
 }
@@ -121,6 +155,7 @@ class CatView extends View {
   constructor (model, container) {
     super(model, container);
     // TODO: solve this with proxies
+    this.adminPanelVisible = false;
     this.initialize();
     this.model.addObserver(this);
   }
@@ -142,8 +177,10 @@ class CatView extends View {
   }
 
   notified (data) {
-    if (data === 'counter') {
+    if (data === 'counter' || data === 'name') {
       this.renderCounter();
+    } else if (data === 'photo') {
+      this.renderPhoto();
     } else {
       this.render();
     }
@@ -168,18 +205,30 @@ class CatView extends View {
   }
 
   renderAdmin () {
-    this.adminContainer.innerHTML = `<button class="admin-button">Show admin panel</button>
-                                    <div class="admin-panel">
-                                      <label for="image">Image: <input type="submit" value="Generate a different image"></label>
-                                      <label for="name">Name: <input type="text" id="name" value="${this.model.name}"> <input type="submit" value="Change"></label>
-                                      <label for="counter">Counter: ${this.model.counter}<input type="submit" value="Reset"></label>
-                                    </div>`;
+    this.adminContainer.innerHTML = '<button class="admin-button">Show admin panel</button>';
   }
 
   render () {
     this.renderPhoto();
     this.renderCounter();
     this.renderAdmin();
+  }
+
+  toggleAdminPanel () {
+    if (this.adminPanelVisible) {
+      let adminPanel = this.adminContainer.querySelector('.admin-panel');
+      this.adminContainer.removeChild(adminPanel);
+      this.adminPanelVisible = false;
+    } else {
+      let adminPanel = document.createElement('div');
+      adminPanel.classList.add('admin-panel');
+      adminPanel.innerHTML = `<label for="image"><input type="submit" id="image-button" value="Generate a different image"></label>
+                                  <label for="name"><input type="text" id="name" value="${this.model.name}" size="15"> <input type="submit" id="name-button" value="Change name"></label>
+                                  <label for="counter"><input type="submit" id="counter-button" value="Reset counter"></label>`;
+      this.adminContainer.appendChild(adminPanel);
+      this.adminPanelVisible = true;
+    }
+
   }
 }
 
