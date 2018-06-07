@@ -15,7 +15,7 @@ This project began as a result of my taking of the course for JavaScript Design 
 The entire app is written in HTML, CSS and JS. I also used SASS for my CSS, because I wanted to learn to integrate it in my workflow.
 
 ### Scope and process
-The objective of this project was to progressively iterate over the design solution for a volatile set of requirements. Ultimately, I *progressed* from an unintuitive approach that resulted in some serious 'spaghetti code' to strictly abiding to using a simplified **MVC design pattern plus leveraging the benefits of a Message Broker for communication between components**, which untangled the logic/code and transformed it into encapsulated components and behaviors. This might seem over-engineered at first glance, but I made the decision of using this approach in order to preempt further requirement changes.
+The objective of this project was to progressively iterate over the design solution for a volatile set of requirements. Ultimately, I *progressed* from an unintuitive approach that resulted in some serious 'spaghetti code' to strictly abiding to using a simplified **MVC design pattern coupled with the Observable pattern (for intra-component communication) plus leveraging the benefits of a Message Broker (for inter-component communication)**, which untangled the logic/code and transformed it into encapsulated components and behaviors. This might seem over-engineered at first glance, but I made the decision of using this approach in order to preempt further requirement changes.
 
 The cat photo API I used is:
   - Cat as service API
