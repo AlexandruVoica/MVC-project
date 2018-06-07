@@ -1,4 +1,4 @@
-# MVC mini-project
+# Cat Clicker Premium v1.1
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg?longCache=true&style=flat-square)
 
 ### Description
@@ -7,7 +7,7 @@ This project began as a result of my taking of the course for JavaScript Design 
   - Each cat's name is randomly generated.
   - Each cat's photo is a random image fetched via an API.
   - The photos are interactive (resting, hovered and clicked state).
-  -
+  - The entire app has an overarching design.
 
 ### Tools
 
