@@ -8,5 +8,9 @@
 
 3.
   Cat Clicker:
-    - show a list of cats and their respective name
-    - a user can select up to 5 cats to display and click on at once
+    - show a list of cats
+    - a user can select up to 4 cats to display and click on at once
+
+4.
+  Cat Clicker:
+    -
