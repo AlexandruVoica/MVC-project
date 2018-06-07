@@ -13,4 +13,7 @@
 
 4.
   Cat Clicker:
-    -
+    - show a list of cats
+    - a user can select up to 4 cats to display and click on at once
+    - each cat on "the stage" must have an administration panel which can modify information about the cat
+    - each cat must have a level that takes into account the number of clicks it received
