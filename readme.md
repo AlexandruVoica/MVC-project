@@ -24,7 +24,7 @@ The cat photo API I used is:
     ```
 
 ### Conclusion
-Working on this project has helped have a deeper understanding of how to implement a design pattern or how to refactor code to adjust to the design pattern. It has also improved my working knowledge of CSS pre-processors (specifically SASS).
+Working on this project has helped me to have a deeper understanding of how to implement a design pattern or how to refactor code to adjust to the design pattern. It has also improved my working knowledge of CSS pre-processors (specifically SASS).
 
 ### Contact
 For any kind of enquiries or questions, you may contact me at alexandru.voica16@gmail.com
