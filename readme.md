@@ -1,5 +1,5 @@
 # Cat Clicker Premium v1.1
-![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg?longCache=true&style=flat-square)
+![stability-stable](https://img.shields.io/badge/stability-stable-green.svg?longCache=true&style=flat-square)
 
 ![Presentation screenshot](https://github.com/AlexandruVoica/cat-clicker-premium/blob/master/screenshot.JPG)
 
