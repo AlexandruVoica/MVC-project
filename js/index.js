@@ -1,5 +1,5 @@
 import { Model, Controller, View, Component } from './generic-classes.js';
-import { generateName } from './helpers.js';
+import { generateName, generateID } from './helpers.js';
 
 const root = document.querySelector('#root');
 
@@ -17,6 +17,7 @@ class CatModel extends Model {
     this.isSelectable = true;
     this.selected = false;
     this.level = 'Newborn';
+    this.id = generateID();
   }
 
   fetchPhoto () {
@@ -373,7 +374,6 @@ class MessageBroker {
   }
 
   addSubscriber (destination, callback) {
-    console.log(destination, callback);
     if (!this.destinations.hasOwnProperty(destination)) {
       this.destinations[destination] = [];
     }
