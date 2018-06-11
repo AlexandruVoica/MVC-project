@@ -8,6 +8,7 @@ This project began as a result of my taking of the course for JavaScript Design 
   - The list of cats is presented as a collection of photos (vs. a list of names).
   - Each cat's name is randomly generated.
   - Each cat's photo is a random image fetched via an API.
+  - Each cat has a unique ID generated from a helper function (increments a variable each time it is called)
   - The photos are interactive (resting, hovered and clicked state).
   - The entire app has an overarching design.
 
